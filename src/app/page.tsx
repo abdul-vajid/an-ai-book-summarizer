@@ -1,11 +1,21 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { RouteTransition } from "@/components/RouteTransition";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
+  const [showTribute, setShowTribute] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTribute(false);
+    }, 3000); // Show tribute for 5 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -32,7 +42,7 @@ export default function Home() {
   return (
     <RouteTransition>
       <motion.main
-        className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground px-4"
+        className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground px-4 relative"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -79,6 +89,45 @@ export default function Home() {
           >
             Get Started
           </Button>
+        </motion.div>
+
+        <motion.div
+          className="absolute bottom-4 text-center text-sm"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 0.5 }}
+        >
+          <AnimatePresence mode="wait">
+            {showTribute ? (
+              <motion.p
+                key="tribute"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-muted-foreground/80 max-w-md px-4 italic"
+              >
+                Rami.ai was born from <span className="text-red-500">love ❤️ </span> – a gift of understanding, designed to
+                read deeply and think wisely, just like her.
+              </motion.p>
+            ) : (
+              <motion.p
+                key="credit"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-muted-foreground/60"
+              >
+                An experimental project by{" "}
+                <a
+                  href="https://github.com/abdul-vajid"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline font-medium text-red-500"
+                >
+                  @vaajiee
+                </a>
+              </motion.p>
+            )}
+          </AnimatePresence>
         </motion.div>
       </motion.main>
     </RouteTransition>
