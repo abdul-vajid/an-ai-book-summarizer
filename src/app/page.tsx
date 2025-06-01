@@ -112,8 +112,7 @@ export default function Home() {
               >
                 Rami.ai was born from{" "}
                 <span className="text-red-500">love ❤️ </span> – a gift of
-                understanding, designed to read deeply and think wisely, just like
-                her.
+                understanding, designed to read deeply and think wisely.
               </motion.p>
             ) : (
               <motion.p
