@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { BookSummary } from '@/types/book.interface';
 import { GoogleGenAI } from '@google/genai';
+import { redisService } from '@/lib/redis';
 
 interface ErrorResponse {
   error: string;
@@ -21,11 +22,19 @@ const funnyRateLimitMessages = [
 export async function POST(request: Request) {
   try {
     const book = await request.json();
+    const cacheKey = redisService.createBookKey(book.title, book.author);
+    
+    // Try to get from cache first
+    const cachedContent = await redisService.getBook(cacheKey);
+    if (cachedContent) {
+      console.log('✅ Returning cached book content');
+      return NextResponse.json(cachedContent);
+    }
+
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error('GEMINI_API_KEY is not set');
 
     const ai = new GoogleGenAI({ apiKey });
-    // Use JSON response type for better error handling
     const config = { responseMimeType: 'application/json' };
     const model = 'gemini-2.0-flash';
 
@@ -120,6 +129,10 @@ Start JSON response:`,
           }))
       }))
     };
+
+    // Cache the generated content
+    await redisService.setBook(cacheKey, bookContent);
+    console.log('✅ Cached new book content');
 
     return NextResponse.json(bookContent);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
