@@ -121,15 +121,16 @@ export default function BookPromptInput({ onSelectBook }: BookPromptInputProps) 
             )}
             {results.length > 0 && (
               <ul className="max-h-60 overflow-auto py-2">
-                {results.map((book, i) => (
+                {results.map((book, index) => (
                   <motion.li
-                    key={book.title + book.author}
+                    // Create a more unique key using multiple properties and index
+                    key={`${book.title}-${book.author}-${index}`}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.03 }}
+                    transition={{ delay: index * 0.03 }}
                     className={cn(
                       "px-4 py-2 cursor-pointer hover:bg-muted flex items-start gap-3",
-                      i === highlighted && "bg-accent text-accent-foreground"
+                      index === highlighted && "bg-accent text-accent-foreground"
                     )}
                     onMouseDown={() => handleSelect(book)}
                   >

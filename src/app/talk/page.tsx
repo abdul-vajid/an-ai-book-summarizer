@@ -19,17 +19,18 @@ export default function TalkPage() {
   async function generateBookContent(book: SearchResult) {
     setGenerating(true);
     try {
-      const response = await fetch('/api/generate-book-content', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(book)
+      const response = await fetch("/api/generate-book-content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(book),
       });
-      
+
       const bookContent: BookSummary = await response.json();
+      console.log("Generated book content:", bookContent);
       setSelectedBook(bookContent);
       setIsLocked(true);
     } catch (error) {
-      console.error('Failed to generate book content:', error);
+      console.error("Failed to generate book content:", error);
     } finally {
       setGenerating(false);
     }
@@ -39,8 +40,14 @@ export default function TalkPage() {
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <div className="flex-1 flex items-center justify-center">
         {generating ? (
-          <div className="text-center text-muted-foreground">
-            <p className="text-xl">Generating book summary...</p>
+          <div className="text-center space-y-4">
+            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+            <p className="text-xl text-muted-foreground">
+              Analyzing book content...
+            </p>
+            <p className="text-sm text-muted-foreground/60">
+              This might take a minute...
+            </p>
           </div>
         ) : selectedBook ? (
           <ChapterTree book={selectedBook} />
@@ -56,12 +63,15 @@ export default function TalkPage() {
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2 flex-1">
                 <BookOpen className="w-5 h-5 text-primary" />
-                <p className="font-medium truncate">{selectedBook?.book.title}</p>
+                <p className="font-medium truncate">
+                  {selectedBook?.book?.title ?? "Book title not found!"}
+                </p>
                 <p className="text-sm text-muted-foreground truncate">
-                  by {selectedBook?.book.author}
+                  by {selectedBook?.book?.author ?? "Unknown author"}
                 </p>
               </div>
               <Button
+                className="cursor-pointer"
                 onClick={() => {
                   setIsLocked(false);
                   setSelectedBook(null);
