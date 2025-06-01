@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# an-ai-book-summarizer 📚🤖  
+**Rami – Read, Analyze, Memorize, Interpret**
 
-## Getting Started
+An experimental AI-powered book reader and summarizer built entirely using **GitHub Copilot**. I didn’t write a single line of code manually — the entire project was developed through AI suggestions, making this a unique exploration of how far Copilot can go in building usable tools.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 📖 AI-driven book summarization  
+- 🔍 Reads, analyzes, memorizes, and interprets content  
+- 🔗 Integrated with the [Open Library API](https://openlibrary.org/developers/api) for book data and suggestions  
+- 🤯 Fully developed using GitHub Copilot (no manual coding!)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ⚙️ Tech Stack
 
-## Learn More
+- **Typescript / Next.js** (Copilot-generated)  
+- **Open Library API**  
+- **Tailwind css, shadcn**
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🚧 Disclaimer
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This is an **experimental project** — a test to see how far AI code generation tools like Copilot can go in building functional software from scratch.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📌 Todo / Ideas for Future
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Add voice narration  
+- Store and revisit past summaries  
+- Improve UI/UX with better design  
+- Integrate GPT-based summarizer instead of basic NLP methods
+
+---
+
+## 📬 Author
+
+Built with 💙 by [@abdul-vajid]([https://github.com/vaajiee](https://github.com/abdul-vajid)) using only AI.
+
+---
+
+## 🧪 Experiment Status
+
+✅ Copilot Used  
+❌ Manual Coding  
+🎯 Purpose: To explore the boundaries of AI-assisted development
+
+---
+
+## 📄 License
+
+MIT – feel free to fork, remix, or contribute!
