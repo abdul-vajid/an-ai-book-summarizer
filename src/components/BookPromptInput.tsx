@@ -121,7 +121,7 @@ export default function BookPromptInput({ books, onSelectBook }: BookPromptInput
             }
           }}
           className={cn(
-            "absolute right-3 p-2 rounded-full transition-colors",
+            "absolute right-3 p-2 rounded-full transition-colors cursor-pointer",
             filtered.length > 0
               ? "hover:bg-primary text-primary hover:text-primary-foreground"
               : "text-muted-foreground cursor-not-allowed"
