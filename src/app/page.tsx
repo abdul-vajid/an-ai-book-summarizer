@@ -72,7 +72,7 @@ export default function Home() {
         >
           <Button
             size="lg"
-            className="rounded-full shadow-lg px-8"
+            className="rounded-full shadow-lg px-8 cursor-pointer"
             onClick={() => {
               router.push("/talk");
             }}

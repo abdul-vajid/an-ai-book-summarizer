@@ -1,7 +1,9 @@
 "use client";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { type ThemeProviderProps } from "next-themes/dist/types";
 import { motion, AnimatePresence } from "framer-motion";
 
-export function MotionProvider({ children }: { children: React.ReactNode }) {
+export function MotionWrapper({ children }: { children: React.ReactNode }) {
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -13,5 +15,17 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
         {children}
       </motion.div>
     </AnimatePresence>
+  );
+}
+
+export function Providers({ children }: ThemeProviderProps) {
+  return (
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+    >
+      {children}
+    </NextThemesProvider>
   );
 }
