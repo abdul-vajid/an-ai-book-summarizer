@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { ChevronRight, CircleDot, BookOpen } from "lucide-react";
 import type { BookSummary } from "@/types/book.interface";
+import { generateChapterContent } from '@/app/actions/book.actions';
 
 const spring = {
   type: "spring",
@@ -13,10 +14,21 @@ const spring = {
 
 export default function ChapterTree({ book }: { book: BookSummary }) {
   const [expandedChapter, setExpandedChapter] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [chapterContent, setChapterContent] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [loading, setLoading] = useState(false);
 
-  const toggleChapter = (chapterTitle: string) => {
-    setExpandedChapter((current) => (current === chapterTitle ? null : chapterTitle));
-  };
+  async function handleChapterClick(chapterTitle: string) {
+    setLoading(true);
+    try {
+      const content = await generateChapterContent(book.book.title, chapterTitle);
+      setChapterContent(content);
+      setExpandedChapter(chapterTitle);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <LayoutGroup>
@@ -55,7 +67,7 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
                     className="relative bg-card border border-border rounded-lg shadow-lg overflow-hidden"
                   >
                     <button
-                      onClick={() => toggleChapter(chapter.title)}
+                      onClick={() => handleChapterClick(chapter.title)}
                       className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors"
                     >
                       <CircleDot className="w-3 h-3 text-primary flex-shrink-0" />

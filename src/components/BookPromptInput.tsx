@@ -4,14 +4,12 @@ import { cn } from "@/lib/utils";
 import { SendHorizontal, Book, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import { BookSummary } from "@/types/book.interface";
 
 interface BookPromptInputProps {
-  books: BookSummary[]; // Not used, but kept for API compatibility
-  onSelectBook: (book: OpenLibraryBook) => void;
+  onSelectBook: (book: SearchResult) => void;
 }
 
-interface OpenLibraryBook {
+interface SearchResult {
   title: string;
   author: string;
 }
@@ -30,7 +28,7 @@ export default function BookPromptInput({ onSelectBook }: BookPromptInputProps) 
   const [showDropdown, setShowDropdown] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<OpenLibraryBook[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -71,10 +69,8 @@ export default function BookPromptInput({ onSelectBook }: BookPromptInputProps) 
     setHighlighted(0);
   }, [query, results.length]);
 
-  function handleSelect(item: OpenLibraryBook) {
-    setQuery(item.title);
-    setShowDropdown(false);
-    onSelectBook(item);
+  function handleSelect(book: SearchResult) {
+    onSelectBook(book);
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {

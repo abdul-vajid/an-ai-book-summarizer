@@ -1,19 +1,45 @@
 "use client";
 import { useState } from "react";
-import { books, allBooks } from "@/data";
 import BookPromptInput from "@/components/BookPromptInput";
 import ChapterTree from "@/components/ChapterTree";
-import { BookCollection } from "@/types/book.interface";
+import type { BookSummary } from "@/types/book.interface";
+
+interface SearchResult {
+  title: string;
+  author: string;
+}
 
 export default function TalkPage() {
-  const [selectedBookKey, setSelectedBookKey] = useState<keyof BookCollection | null>(null);
+  const [selectedBook, setSelectedBook] = useState<BookSummary | null>(null);
+  const [generating, setGenerating] = useState(false);
 
-  const selectedBook = selectedBookKey ? books[selectedBookKey] : null;
+  async function generateBookContent(book: SearchResult) {
+    setGenerating(true);
+    try {
+      // This is a placeholder - implement your actual book content generation logic
+      const response = await fetch('/api/generate-book-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(book)
+      });
+      
+      const bookContent: BookSummary = await response.json();
+      setSelectedBook(bookContent);
+    } catch (error) {
+      console.error('Failed to generate book content:', error);
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <div className="flex-1 flex items-center justify-center">
-        {selectedBook ? (
+        {generating ? (
+          <div className="text-center text-muted-foreground">
+            <p className="text-xl">Generating book summary...</p>
+          </div>
+        ) : selectedBook ? (
           <ChapterTree book={selectedBook} />
         ) : (
           <div className="text-center text-muted-foreground">
@@ -24,13 +50,8 @@ export default function TalkPage() {
       <div className="fixed bottom-0 left-0 w-full bg-background/80 backdrop-blur z-10 px-2 py-4">
         <div className="max-w-2xl mx-auto">
           <BookPromptInput
-            books={allBooks}
             onSelectBook={(book) => {
-              // Find key by matching title
-              const key = Object.keys(books).find(
-                (k) => books[k as keyof BookCollection].book.title === book.book.title
-              ) as keyof BookCollection;
-              setSelectedBookKey(key ?? null);
+              generateBookContent(book);
             }}
           />
         </div>
