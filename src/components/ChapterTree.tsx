@@ -1,117 +1,113 @@
 "use client";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, BookOpen } from "lucide-react";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { ChevronRight, CircleDot } from "lucide-react";
 import type { BookSummary } from "@/types/book.interface";
-import { cn } from "@/lib/utils";
 
-// Animation configs
 const spring = {
   type: "spring",
-  damping: 15,
-  stiffness: 100,
-};
-
-const fadeInUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-  transition: spring,
+  stiffness: 150,
+  damping: 20,
+  mass: 0.5,
 };
 
 export default function ChapterTree({ book }: { book: BookSummary }) {
   const [expandedChapter, setExpandedChapter] = useState<string | null>(null);
-  const chapters = [...book.chapters].reverse();
+
+  const toggleChapter = (chapterTitle: string) => {
+    setExpandedChapter((current) => (current === chapterTitle ? null : chapterTitle));
+  };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-8">
-      <motion.h2
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-2xl md:text-3xl font-bold mb-8 text-center flex items-center justify-center gap-2"
-      >
-        <BookOpen className="w-6 h-6" />
-        {book.book.title}
-      </motion.h2>
+    <LayoutGroup>
+      <div className="w-full max-w-5xl mx-auto px-4 py-8">
+        <div className="relative pl-8">
+          {/* Main vertical line */}
+          <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
 
-      <div className="space-y-4">
-        {chapters.map((chapter, idx) => (
-          <motion.div
-            key={chapter.title}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ ...spring, delay: idx * 0.1 }}
-            className="relative"
-          >
-            {/* Connector Line */}
-            {idx !== chapters.length - 1 && (
-              <div className="absolute left-6 top-12 bottom-0 w-0.5 bg-border" />
-            )}
-
+          {book.chapters.map((chapter) => (
             <motion.div
-              className={cn(
-                "relative z-10 bg-card border border-border rounded-lg shadow-lg overflow-hidden",
-                expandedChapter === chapter.title && "ring-2 ring-primary"
-              )}
-              layout
+              key={chapter.title}
+              layout="position"
               transition={spring}
+              className="mb-6 relative"
             >
-              <button
-                onClick={() =>
-                  setExpandedChapter(
-                    expandedChapter === chapter.title ? null : chapter.title
-                  )
-                }
-                className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors"
-              >
-                <motion.div
-                  animate={{ rotate: expandedChapter === chapter.title ? 90 : 0 }}
-                  transition={spring}
-                >
-                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                </motion.div>
-                <span className="font-semibold text-lg">{chapter.title}</span>
-              </button>
+              {/* Chapter connector line */}
+              <div className="absolute -left-4 top-6 w-4 h-px bg-border" />
 
-              <AnimatePresence mode="wait">
-                {expandedChapter === chapter.title && (
+              <motion.div
+                layout="position"
+                className="relative bg-card border border-border rounded-lg shadow-lg overflow-hidden"
+              >
+                <button
+                  onClick={() => toggleChapter(chapter.title)}
+                  className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors"
+                >
+                  <CircleDot className="w-3 h-3 text-primary flex-shrink-0" />
                   <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
+                    animate={{ rotate: expandedChapter === chapter.title ? 90 : 0 }}
                     transition={spring}
-                    className="border-t border-border"
+                    className="flex-shrink-0"
                   >
-                    <div className="p-4 space-y-3">
-                      {chapter.nodes.map((node, nodeIdx) => (
-                        <motion.div
-                          key={node.title}
-                          {...fadeInUp}
-                          transition={{ ...spring, delay: nodeIdx * 0.1 }}
-                          className="ml-6 p-3 bg-muted/30 rounded-md hover:bg-muted/50 transition-colors"
-                        >
-                          <h4 className="font-medium mb-1">{node.title}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {node.summary}
-                          </p>
-                          <motion.p
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            transition={spring}
-                            className="text-sm mt-2 text-muted-foreground/80 italic"
-                          >
-                            {node.deepDive}
-                          </motion.p>
-                        </motion.div>
-                      ))}
-                    </div>
+                    <ChevronRight className="w-4 h-4" />
                   </motion.div>
-                )}
-              </AnimatePresence>
+                  <span className="font-semibold">{chapter.title}</span>
+                </button>
+
+                <AnimatePresence mode="popLayout">
+                  {expandedChapter === chapter.title && (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={spring}
+                      className="border-t border-border"
+                    >
+                      <div className="relative pl-8 py-4">
+                        {/* Node vertical line */}
+                        <div className="absolute left-6 top-0 bottom-0 w-px bg-border/50" />
+
+                        <div className="space-y-3">
+                          {chapter.nodes.map((node, nodeIdx) => (
+                            <motion.div
+                              key={node.title}
+                              layout
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ ...spring, delay: nodeIdx * 0.1 }}
+                              className="relative"
+                            >
+                              {/* Node connector line */}
+                              <div className="absolute -left-2 top-[14px] w-2 h-px bg-border/50" />
+
+                              <div className="bg-muted/30 rounded-lg p-4 hover:bg-muted/40 transition-colors">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-2 h-2 rounded-full bg-primary/60" />
+                                  <h4 className="font-medium">{node.title}</h4>
+                                </div>
+                                <p className="text-sm text-muted-foreground ml-4">
+                                  {node.summary}
+                                </p>
+                                <motion.p
+                                  layout
+                                  className="text-sm mt-2 text-muted-foreground/80 italic ml-4"
+                                >
+                                  {node.deepDive}
+                                </motion.p>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </LayoutGroup>
   );
 }
