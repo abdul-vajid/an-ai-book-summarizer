@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { SendHorizontal } from "lucide-react";
+import { SendHorizontal, Book, AlertCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { BookSummary } from "@/types/book.interface";
 
 interface BookPromptInputProps {
@@ -18,6 +19,8 @@ export default function BookPromptInput({ books, onSelectBook }: BookPromptInput
   const filtered = books.filter((b) =>
     b.book.title.toLowerCase().includes(query.toLowerCase())
   );
+
+  const showNotFound = query.length > 0 && filtered.length === 0;
 
   useEffect(() => {
     setHighlighted(0);
@@ -44,7 +47,57 @@ export default function BookPromptInput({ books, onSelectBook }: BookPromptInput
   }
 
   return (
-    <div className="relative">
+    <div className="flex flex-col gap-2">
+      {/* Suggestions Panel */}
+      <AnimatePresence>
+        {query.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="w-full rounded-lg bg-card border border-border shadow-lg overflow-hidden mb-2"
+          >
+            {showNotFound ? (
+              <motion.div
+                initial={{ scale: 0.95 }}
+                animate={{ scale: 1 }}
+                className="p-4 text-center"
+              >
+                <AlertCircle className="w-6 h-6 text-destructive mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  No books found matching &quot;{query}&quot;
+                </p>
+              </motion.div>
+            ) : (
+              <ul className="max-h-60 overflow-auto py-2">
+                {filtered.map((book, i) => (
+                  <motion.li
+                    key={book.book.title}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    className={cn(
+                      "px-4 py-2 cursor-pointer hover:bg-muted flex items-start gap-3",
+                      i === highlighted && "bg-accent text-accent-foreground"
+                    )}
+                    onMouseDown={() => handleSelect(book)}
+                  >
+                    <Book className="w-5 h-5 mt-1 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium">{book.book.title}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-1">
+                        {book.book.author}
+                      </p>
+                    </div>
+                  </motion.li>
+                ))}
+              </ul>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Input Field */}
       <div className="relative flex items-center">
         <Input
           ref={inputRef}
@@ -67,29 +120,17 @@ export default function BookPromptInput({ books, onSelectBook }: BookPromptInput
               handleSelect(filtered[0]);
             }
           }}
-          className="absolute right-3 p-2 hover:bg-muted rounded-full transition-colors"
+          className={cn(
+            "absolute right-3 p-2 rounded-full transition-colors",
+            filtered.length > 0
+              ? "hover:bg-primary text-primary hover:text-primary-foreground"
+              : "text-muted-foreground cursor-not-allowed"
+          )}
+          disabled={filtered.length === 0}
         >
-          <SendHorizontal className="h-5 w-5 text-muted-foreground" />
+          <SendHorizontal className="h-5 w-5" />
         </button>
       </div>
-      {showDropdown && filtered.length > 0 && (
-        <ul className="absolute left-0 right-0 mt-2 bg-popover border border-border rounded-lg shadow-lg z-20 max-h-60 overflow-auto">
-          {filtered.map((b, i) => (
-            <li
-              key={b.book.title}
-              className={cn(
-                "px-4 py-2 cursor-pointer transition-colors",
-                i === highlighted
-                  ? "bg-accent text-accent-foreground"
-                  : "hover:bg-muted"
-              )}
-              onMouseDown={() => handleSelect(b)}
-            >
-              {b.book.title}
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
