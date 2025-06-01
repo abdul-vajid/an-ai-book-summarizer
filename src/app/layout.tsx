@@ -3,6 +3,7 @@ import { GeistSans } from 'geist/font/sans';
 import { Providers } from "@/components/Providers";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MotionWrapper } from "@/components/motion-wrapper";
+import { PostHogProvider } from '@/providers/PostHogProvider'
 import "./globals.css";
 
 const fontSans = GeistSans;
@@ -25,8 +26,10 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Providers>
-          <ThemeToggle />
-          <MotionWrapper>{children}</MotionWrapper>
+          <PostHogProvider>
+            <ThemeToggle />
+            <MotionWrapper>{children}</MotionWrapper>
+          </PostHogProvider>
         </Providers>
       </body>
     </html>

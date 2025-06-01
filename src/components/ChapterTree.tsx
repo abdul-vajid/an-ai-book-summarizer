@@ -4,6 +4,7 @@ import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { ChevronRight, CircleDot, BookOpen, AlertCircle } from "lucide-react";
 import type { BookSummary } from "@/types/book.interface";
 import { Button } from "@/components/ui/button";
+import { usePostHog } from "posthog-js/react";
 
 const spring = {
   type: "spring",
@@ -13,6 +14,7 @@ const spring = {
 };
 
 export default function ChapterTree({ book }: { book: BookSummary }) {
+  const posthog = usePostHog();
   const [expandedChapter, setExpandedChapter] = useState<string | null>(null);
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
     {}
@@ -32,6 +34,16 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [book]);
+
+  useEffect(() => {
+    if (book && posthog) {
+      posthog.capture("book_loaded", {
+        title: book.book.title,
+        author: book.book.author,
+        chapters_count: book.chapters.length,
+      });
+    }
+  }, [book, posthog]);
 
   async function preloadChapterData(chapterTitle: string) {
     setLoadingStates((prev) => ({ ...prev, [chapterTitle]: true }));
@@ -73,6 +85,10 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
 
   function handleChapterClick(chapterTitle: string) {
     setExpandedChapter(expandedChapter === chapterTitle ? null : chapterTitle);
+    posthog?.capture("chapter_expanded", {
+      book_title: book.book.title,
+      chapter_title: chapterTitle,
+    });
   }
 
   // Guard against invalid book data

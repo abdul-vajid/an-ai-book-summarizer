@@ -5,6 +5,7 @@ import ChapterTree from "@/components/ChapterTree";
 import type { BookSummary } from "@/types/book.interface";
 import { Button } from "@/components/ui/button";
 import { BookOpen } from "lucide-react";
+import { usePostHog } from "posthog-js/react";
 
 interface SearchResult {
   title: string;
@@ -12,6 +13,7 @@ interface SearchResult {
 }
 
 export default function TalkPage() {
+  const posthog = usePostHog();
   const [selectedBook, setSelectedBook] = useState<BookSummary | null>(null);
   const [generating, setGenerating] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -20,6 +22,12 @@ export default function TalkPage() {
   async function generateBookContent(book: SearchResult) {
     setGenerating(true);
     setError(null);
+
+    posthog?.capture("book_generation_started", {
+      title: book.title,
+      author: book.author,
+    });
+
     try {
       const response = await fetch("/api/google-ai", {
         method: "POST",
@@ -36,12 +44,25 @@ export default function TalkPage() {
       console.log("Generated book content:", bookContent);
       setSelectedBook(bookContent);
       setIsLocked(true);
+
+      posthog?.capture("book_generation_completed", {
+        title: book.title,
+        author: book.author,
+        success: true,
+      });
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
           : "Failed to generate book content";
       setError(message);
+
+      posthog?.capture("book_generation_failed", {
+        title: book.title,
+        author: book.author,
+        error: message,
+      });
+
       console.error("Failed to generate book content:", error);
     } finally {
       setGenerating(false);
@@ -64,9 +85,7 @@ export default function TalkPage() {
         ) : error ? (
           <div className="text-center text-destructive space-y-2">
             <p className="text-xl">{error}</p>
-            <Button onClick={() => setError(null)}>
-              Try Again
-            </Button>
+            <Button onClick={() => setError(null)}>Try Again</Button>
           </div>
         ) : selectedBook ? (
           <ChapterTree book={selectedBook} />
