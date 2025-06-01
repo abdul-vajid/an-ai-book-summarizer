@@ -4,9 +4,11 @@ import { cn } from "@/lib/utils";
 import { SendHorizontal, Book, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import { BookSummary } from "@/types/book.interface";
 
 interface BookPromptInputProps {
   onSelectBook: (book: SearchResult) => void;
+  lockedBook?: BookSummary | null;
 }
 
 interface SearchResult {
@@ -42,7 +44,11 @@ export default function BookPromptInput({ onSelectBook }: BookPromptInputProps) 
       setLoading(true);
       axios
         .get("https://openlibrary.org/search.json", {
-          params: { q: debouncedQuery, limit: 10 },
+          params: { 
+            q: debouncedQuery, 
+            limit: 20,  // Increased limit
+            fields: "title,author_name,first_publish_year,number_of_pages_median"
+          },
         })
         .then((res) => {
           setResults(
@@ -54,6 +60,8 @@ export default function BookPromptInput({ onSelectBook }: BookPromptInputProps) 
               .map((doc: any) => ({
                 title: doc.title,
                 author: Array.isArray(doc.author_name) ? doc.author_name[0] : "",
+                year: doc.first_publish_year,
+                pages: doc.number_of_pages_median
               }))
           );
         })

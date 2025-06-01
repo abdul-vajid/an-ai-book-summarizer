@@ -5,26 +5,21 @@ export async function POST(request: Request) {
   try {
     const book = await request.json();
 
-    // This is where you'd implement your actual book content generation
-    // For now, returning a placeholder structure
+    // Generate more chapters (this is a placeholder - implement actual generation)
     const bookContent: BookSummary = {
       book: {
         title: book.title,
         author: book.author,
         intro: `A comprehensive guide to ${book.title}`,
       },
-      chapters: [
-        {
-          title: "Introduction",
-          nodes: [
-            {
-              title: "Overview",
-              summary: "A brief introduction to the book's main concepts",
-              deepDive: "Detailed exploration of the book's framework"
-            }
-          ]
-        }
-      ]
+      chapters: Array.from({ length: 10 }, (_, i) => ({
+        title: `Chapter ${i + 1}`,
+        nodes: Array.from({ length: 3 }, (_, j) => ({
+          title: `Topic ${j + 1}`,
+          summary: `Summary of chapter ${i + 1}, topic ${j + 1}`,
+          deepDive: `Detailed exploration of topic ${j + 1}`
+        }))
+      }))
     };
 
     return NextResponse.json(bookContent);

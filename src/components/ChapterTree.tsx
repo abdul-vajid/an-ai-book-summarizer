@@ -3,7 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { ChevronRight, CircleDot, BookOpen } from "lucide-react";
 import type { BookSummary } from "@/types/book.interface";
-import { generateChapterContent } from '@/app/actions/book.actions';
+import { generateChapterContent } from "@/app/actions/book.actions";
 
 const spring = {
   type: "spring",
@@ -22,7 +22,10 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
   async function handleChapterClick(chapterTitle: string) {
     setLoading(true);
     try {
-      const content = await generateChapterContent(book.book.title, chapterTitle);
+      const content = await generateChapterContent(
+        book.book.title,
+        chapterTitle
+      );
       setChapterContent(content);
       setExpandedChapter(chapterTitle);
     } finally {
@@ -39,9 +42,12 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
           animate={{ opacity: 1, y: 0 }}
           className="sticky top-0 z-30 w-full bg-background/80 backdrop-blur-sm border-b border-border mt-20"
         >
-          <div className="max-w-5xl mx-auto px-4 py-5 flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-medium">{book.book.title}</h2>
+          <div className="max-w-5xl mx-auto px-4 py-5 items-center gap-2">
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-primary" />
+              <h2 className="text-lg font-bold">Rami.ai</h2>
+            </div>
+            <p className="text-xs font-semibold">Read, Analyze, Memorize, Interpret</p>
           </div>
         </motion.div>
 
@@ -72,7 +78,9 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
                     >
                       <CircleDot className="w-3 h-3 text-primary flex-shrink-0" />
                       <motion.div
-                        animate={{ rotate: expandedChapter === chapter.title ? 90 : 0 }}
+                        animate={{
+                          rotate: expandedChapter === chapter.title ? 90 : 0,
+                        }}
                         transition={spring}
                         className="flex-shrink-0"
                       >
@@ -102,7 +110,10 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
                                   layout
                                   initial={{ opacity: 0, x: -10 }}
                                   animate={{ opacity: 1, x: 0 }}
-                                  transition={{ ...spring, delay: nodeIdx * 0.1 }}
+                                  transition={{
+                                    ...spring,
+                                    delay: nodeIdx * 0.1,
+                                  }}
                                   className="relative"
                                 >
                                   {/* Node connector line */}
@@ -111,7 +122,9 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
                                   <div className="bg-muted/30 rounded-lg p-4 hover:bg-muted/40 transition-colors">
                                     <div className="flex items-center gap-2 mb-2">
                                       <div className="w-2 h-2 rounded-full bg-primary/60" />
-                                      <h4 className="font-medium">{node.title}</h4>
+                                      <h4 className="font-medium">
+                                        {node.title}
+                                      </h4>
                                     </div>
                                     <p className="text-sm text-muted-foreground ml-4">
                                       {node.summary}
