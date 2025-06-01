@@ -9,6 +9,7 @@ import robbinsBasicPathology from './books/robbins-basic-pathology';
 import graysAnatomy from './books/gray-anatomy';
 import guytonPhysiology from './books/guyton-physiology';
 import { BookCollection } from '@/types/book.interface';
+import thinkAndGrowRich from './books/think-and-grow-rich';
 
 export const books: BookCollection = {
   'atomic-habits': atomicHabits,
@@ -21,6 +22,7 @@ export const books: BookCollection = {
   'robbins-basic-pathology': robbinsBasicPathology,
   'grays-anatomy': graysAnatomy,
   'guyton-physiology': guytonPhysiology,
+    'think-and-grow-rich': thinkAndGrowRich
 };
 
 // Exporting all books as an array for easier iteration or display
@@ -35,4 +37,5 @@ export const allBooks = [
   robbinsBasicPathology,
   graysAnatomy,
   guytonPhysiology,
+  thinkAndGrowRich,
 ];

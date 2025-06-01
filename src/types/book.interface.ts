@@ -29,4 +29,5 @@ export type BookCollection = {
   'robbins-basic-pathology': BookSummary;
   'grays-anatomy': BookSummary;
   'guyton-physiology': BookSummary;
+  'think-and-grow-rich': BookSummary;
 }
