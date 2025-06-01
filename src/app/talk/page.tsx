@@ -15,21 +15,33 @@ export default function TalkPage() {
   const [selectedBook, setSelectedBook] = useState<BookSummary | null>(null);
   const [generating, setGenerating] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function generateBookContent(book: SearchResult) {
     setGenerating(true);
+    setError(null);
     try {
-      const response = await fetch("/api/open-ai", {
+      const response = await fetch("/api/google-ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(book),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate content");
+      }
 
       const bookContent: BookSummary = await response.json();
       console.log("Generated book content:", bookContent);
       setSelectedBook(bookContent);
       setIsLocked(true);
     } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to generate book content";
+      setError(message);
       console.error("Failed to generate book content:", error);
     } finally {
       setGenerating(false);
@@ -48,6 +60,13 @@ export default function TalkPage() {
             <p className="text-sm text-muted-foreground/60">
               This might take a minute...
             </p>
+          </div>
+        ) : error ? (
+          <div className="text-center text-destructive space-y-2">
+            <p className="text-xl">{error}</p>
+            <Button onClick={() => setError(null)}>
+              Try Again
+            </Button>
           </div>
         ) : selectedBook ? (
           <ChapterTree book={selectedBook} />

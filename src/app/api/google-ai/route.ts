@@ -44,11 +44,12 @@ export async function POST(request: Request) {
   "chapters": [
     {
       "title": "Chapter Title",
+      "summary": "Brief summary of the chapter 100 to 250 words",
       "nodes": [
         {
           "title": "Key Concept Title",
-          "summary": "Brief explanation of the concept",
-          "deepDive": "Detailed exploration of the concept's application and importance"
+          "summary": "Brief explanation of the concept 100 to 250 words",
+          "deepDive": "Detailed exploration of the concept's application and importance 250 to 1000 words"
         }
       ]
     }
@@ -56,13 +57,11 @@ export async function POST(request: Request) {
 }
 
 Requirements:
-1. Must fetch all chapters of the book
-2. Each chapter must have exactly 3 nodes
-3. Keep summaries concise (200-300 words)
-4. Keep deep dives informative (500-2000 words based on chapter complexity)
-5. Focus on actionable insights
-6. Use proper JSON format
-7. Ensure all text values are properly escaped
+1. Each chapter must include a clear summary
+2. Include ALL key concepts as nodes for each chapter
+3. Each node must have a concise summary and detailed deep dive
+4. Use proper JSON format
+5. Ensure all text values are properly escaped
 
 Start JSON response:`,
           },
@@ -82,6 +81,7 @@ Start JSON response:`,
     }
 
     // Try to parse the AI response as JSON (should be valid JSON if model follows instructions)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let parsedContent: any = null;
     try {
       parsedContent = JSON.parse(fullText);
@@ -107,10 +107,12 @@ Start JSON response:`,
         author: book.author,
         intro: parsedContent.book?.intro || `A comprehensive guide to ${book.title}.`
       },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       chapters: parsedContent.chapters.slice(0, 7).map((chapter: any, index: number) => ({
         title: chapter.title || `Chapter ${index + 1}`,
         nodes: (chapter.nodes || [])
           .slice(0, 3)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .map((node: any, nIndex: number) => ({
             title: node.title || `Key Point ${nIndex + 1}`,
             summary: node.summary || 'Summary not available',
@@ -122,6 +124,7 @@ Start JSON response:`,
     console.log('✅ Generated book content:', bookContent);
 
     return NextResponse.json(bookContent);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     const isRateLimit = 
       (typeof error === "object" && error?.message?.includes("429")) ||

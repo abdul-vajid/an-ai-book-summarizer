@@ -9,10 +9,11 @@ export interface BookSummary {
 
 export interface Chapter {
   title: string;
-  nodes: NodeSummary[];
+  summary: string;
+  nodes: Node[];
 }
 
-export interface NodeSummary {
+export interface Node {
   title: string;
   summary: string;
   deepDive: string;

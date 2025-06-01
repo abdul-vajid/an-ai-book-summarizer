@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { ChevronRight, CircleDot, BookOpen, AlertCircle } from "lucide-react";
 import type { BookSummary } from "@/types/book.interface";
-import { generateChapterContent } from "@/app/actions/book.actions";
+import { Button } from "@/components/ui/button";
 
 const spring = {
   type: "spring",
@@ -14,16 +14,66 @@ const spring = {
 
 export default function ChapterTree({ book }: { book: BookSummary }) {
   const [expandedChapter, setExpandedChapter] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
+    {}
+  );
   const [error, setError] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [chapterNodes, setChapterNodes] = useState<Record<string, any[]>>({});
 
+  // Pre-load all chapter data when component mounts
   useEffect(() => {
-    if (expandedChapter && !chapterNodes[expandedChapter]) {
-      fetchChapterNodes(expandedChapter);
+    if (book.chapters) {
+      book.chapters.forEach((chapter) => {
+        if (!chapterNodes[chapter.title]) {
+          preloadChapterData(chapter.title);
+        }
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expandedChapter]);
+  }, [book]);
+
+  async function preloadChapterData(chapterTitle: string) {
+    setLoadingStates((prev) => ({ ...prev, [chapterTitle]: true }));
+    try {
+      const res = await fetch("/api/google-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: book.book.title,
+          author: book.book.author,
+          chapter: chapterTitle,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to load chapter data");
+      }
+
+      const data = await res.json();
+      if (data.chapters && Array.isArray(data.chapters)) {
+        const chapterData = data.chapters.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (c: any) => c.title === chapterTitle
+        );
+        if (chapterData?.nodes) {
+          setChapterNodes((prev) => ({
+            ...prev,
+            [chapterTitle]: chapterData.nodes,
+          }));
+        }
+      }
+    } catch (err) {
+      console.error(`Failed to preload chapter: ${chapterTitle}`, err);
+      setError(`Failed to load chapter: ${chapterTitle}`);
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [chapterTitle]: false }));
+    }
+  }
+
+  function handleChapterClick(chapterTitle: string) {
+    setExpandedChapter(expandedChapter === chapterTitle ? null : chapterTitle);
+  }
 
   // Guard against invalid book data
   if (!book || !book.book || !Array.isArray(book.chapters)) {
@@ -39,52 +89,6 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
         </p>
       </div>
     );
-  }
-
-  async function handleChapterClick(chapterTitle: string) {
-    setLoading(true);
-    setError(null);
-    try {
-      const content = await generateChapterContent(
-        book.book.title,
-        chapterTitle
-      );
-      if (content && typeof content === "object" && "error" in content) {
-        throw new Error((content as { error: string }).error);
-      }
-      setExpandedChapter(chapterTitle);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load chapter content"
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function fetchChapterNodes(chapterTitle: string) {
-    try {
-      const res = await fetch("/api/open-ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: book.book.title,
-          author: book.book.author,
-          chapter: chapterTitle,
-        }),
-      });
-      const data = await res.json();
-      if (data.nodes && Array.isArray(data.nodes)) {
-        setChapterNodes((prev) => ({
-          ...prev,
-          [chapterTitle]: data.nodes,
-        }));
-      }
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load chapter nodes"
-      );
-    }
   }
 
   return (
@@ -166,38 +170,65 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
                               <div className="absolute left-6 top-0 bottom-0 w-px bg-border/50" />
 
                               <div className="space-y-3">
-                                {(chapterNodes[chapter.title] || chapter.nodes).map((node, nodeIdx) => (
-                                  <motion.div
-                                    key={node.title}
-                                    layout
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{
-                                      ...spring,
-                                      delay: nodeIdx * 0.1,
-                                    }}
-                                    className="relative"
-                                  >
-                                    {/* Node connector line */}
-                                    <div className="absolute -left-2 top-[14px] w-2 h-px bg-border/50" />
+                                {loadingStates[chapter.title] ? (
+                                  <div className="p-4 flex justify-center">
+                                    <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
+                                  </div>
+                                ) : (
+                                  (
+                                    chapterNodes[chapter.title] || chapter.nodes
+                                  ).map((node, nodeIdx) => (
+                                    <motion.div
+                                      key={node.title}
+                                      layout
+                                      initial={{ opacity: 0, x: -10 }}
+                                      animate={{ opacity: 1, x: 0 }}
+                                      transition={{
+                                        ...spring,
+                                        delay: nodeIdx * 0.1,
+                                      }}
+                                      className="relative"
+                                    >
+                                      {/* Node connector line */}
+                                      <div className="absolute -left-2 top-[14px] w-2 h-px bg-border/50" />
 
-                                    <div className="bg-muted/30 rounded-lg p-4 hover:bg-muted/40 transition-colors">
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <div className="w-2 h-2 rounded-full bg-primary/60" />
-                                        <h4 className="font-medium">{node.title}</h4>
+                                      <div className="bg-muted/30 rounded-lg p-4 hover:bg-muted/40 transition-colors">
+                                        <div className="flex items-center gap-2 mb-2">
+                                          <div className="w-2 h-2 rounded-full bg-primary/60" />
+                                          <h4 className="font-medium">
+                                            {node.title}
+                                          </h4>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground ml-4 mb-4">
+                                          {node.summary}
+                                        </p>
+                                        <motion.div
+                                          layout
+                                          className="space-y-4"
+                                        >
+                                          <motion.p className="text-sm text-muted-foreground/80 italic ml-4">
+                                            {node.deepDive}
+                                          </motion.p>
+                                          <div className="ml-4 space-y-2">
+                                            <Button size="sm" disabled>
+                                              Dive into this concept
+                                            </Button>
+                                            <p className="text-xs text-muted-foreground">
+                                              You&apos;re not eligible to access
+                                              the{" "}
+                                              <span className="font-medium">
+                                                &quot;Dive into this
+                                                concept&quot;
+                                              </span>{" "}
+                                              feature — it&apos;s currently
+                                              available only to selected users.
+                                            </p>
+                                          </div>
+                                        </motion.div>
                                       </div>
-                                      <p className="text-sm text-muted-foreground ml-4">
-                                        {node.summary}
-                                      </p>
-                                      <motion.p
-                                        layout
-                                        className="text-sm mt-2 text-muted-foreground/80 italic ml-4"
-                                      >
-                                        {node.deepDive}
-                                      </motion.p>
-                                    </div>
-                                  </motion.div>
-                                ))}
+                                    </motion.div>
+                                  ))
+                                )}
                               </div>
                             </div>
                           </motion.div>
@@ -216,11 +247,13 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
         </div>
 
         {/* Loading Overlay */}
-        {loading && (
+        {Object.values(loadingStates).some(Boolean) && (
           <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
               <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
-              <p className="text-muted-foreground">Loading chapter content...</p>
+              <p className="text-muted-foreground">
+                Loading chapter content...
+              </p>
             </div>
           </div>
         )}
