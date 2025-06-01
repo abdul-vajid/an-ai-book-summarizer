@@ -18,10 +18,30 @@ export interface BookInfo {
     | "science"
     | "philosophy"
     | "medical"
-    | "psychology";
+    | "psychology"
+    | "technology"
+    | "fiction"
+    | "biography"
+    | "history"
+    | "economics"
+    | "leadership"
+    | "productivity"
+    | "health"
+    | "spirituality";
 }
 
-export const bookNames: BookInfo[] = [
+// Helper function to remove duplicates
+const uniqueBooks = (books: BookInfo[]): BookInfo[] => {
+  const seen = new Set();
+  return books.filter((book) => {
+    const key = `${book.title}-${book.author}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+export const bookNames: BookInfo[] = uniqueBooks([
   {
     title: "The 7 Habits of Highly Effective People",
     author: "Stephen R. Covey",
@@ -275,23 +295,108 @@ export const bookNames: BookInfo[] = [
     category: "business",
   },
   {
-    title: "The Barefoot Investor",
-    author: "Scott Pape",
-    category: "business",
+    title: "Clean Code",
+    author: "Robert C. Martin",
+    category: "technology",
   },
   {
-    title: "The Psychology of Money",
-    author: "Morgan Housel",
-    category: "business",
+    title: "The Pragmatic Programmer",
+    author: "Andrew Hunt",
+    category: "technology",
   },
   {
-    title: "The Intelligent Investor",
-    author: "Benjamin Graham",
-    category: "business",
+    title: "Design Patterns",
+    author: "Erich Gamma",
+    category: "technology",
   },
   {
-    title: "The Millionaire Next Door",
-    author: "Thomas J. Stanley",
-    category: "business",
-  }, 
-];
+    title: "Code Complete",
+    author: "Steve McConnell",
+    category: "technology",
+  },
+  { title: "1984", author: "George Orwell", category: "fiction" },
+  { title: "Brave New World", author: "Aldous Huxley", category: "fiction" },
+  {
+    title: "The Great Gatsby",
+    author: "F. Scott Fitzgerald",
+    category: "fiction",
+  },
+  {
+    title: "Leaders Eat Last",
+    author: "Simon Sinek",
+    category: "leadership",
+  },
+  {
+    title: "Extreme Ownership",
+    author: "Jocko Willink",
+    category: "leadership",
+  },
+  {
+    title: "The 21 Irrefutable Laws of Leadership",
+    author: "John C. Maxwell",
+    category: "leadership",
+  },
+  {
+    title: "Economics in One Lesson",
+    author: "Henry Hazlitt",
+    category: "economics",
+  },
+  {
+    title: "The Wealth of Nations",
+    author: "Adam Smith",
+    category: "economics",
+  },
+  {
+    title: "Capital in the Twenty-First Century",
+    author: "Thomas Piketty",
+    category: "economics",
+  },
+  {
+    title: "Sapiens: A Brief History of Humankind",
+    author: "Yuval Noah Harari",
+    category: "history",
+  },
+  {
+    title: "Guns, Germs, and Steel",
+    author: "Jared Diamond",
+    category: "history",
+  },
+  {
+    title: "The Rise and Fall of the Third Reich",
+    author: "William L. Shirer",
+    category: "history",
+  },
+  {
+    title: "Getting Things Done",
+    author: "David Allen",
+    category: "productivity",
+  },
+  { title: "The One Thing", author: "Gary Keller", category: "productivity" },
+  { title: "Essentialism", author: "Greg McKeown", category: "productivity" },
+  { title: "Why We Sleep", author: "Matthew Walker", category: "health" },
+  { title: "The Blue Zones", author: "Dan Buettner", category: "health" },
+  { title: "How Not to Die", author: "Michael Greger", category: "health" },
+  {
+    title: "The Power of Now",
+    author: "Eckhart Tolle",
+    category: "spirituality",
+  },
+  {
+    title: "The Seven Spiritual Laws of Success",
+    author: "Deepak Chopra",
+    category: "spirituality",
+  },
+  {
+    title: "The Road Less Traveled",
+    author: "M. Scott Peck",
+    category: "spirituality",
+  },
+]);
+
+// Export counts by category for analysis
+export const bookCounts = Object.entries(
+  bookNames.reduce((acc, book) => {
+    acc[book.category] = (acc[book.category] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>)
+);
