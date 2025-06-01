@@ -57,8 +57,8 @@ export async function POST(request: Request) {
       "nodes": [
         {
           "title": "Key Concept Title",
-          "summary": "Brief explanation of the concept 100 to 250 words",
-          "deepDive": "Detailed exploration of the concept's application and importance 250 to 1000 words"
+          "summary": "Brief explanation of the concept 150 to 250 words",
+          "deepDive": "Detailed exploration of the concept's application and importance 500 to 2000 words"
         }
       ]
     }
@@ -66,11 +66,12 @@ export async function POST(request: Request) {
 }
 
 Requirements:
-1. Each chapter must include a clear summary
-2. Include ALL key concepts as nodes for each chapter
-3. Each node must have a concise summary and detailed deep dive
-4. Use proper JSON format
-5. Ensure all text values are properly escaped
+1. Must provide all chapters of the book
+2. Each chapter must include a clear summary
+3. Include ALL key concepts as nodes for each chapter, never miss a key concept
+4. Each node must have a concise summary and detailed deep dive
+5. Use proper JSON format
+6. Ensure all text values are properly escaped
 
 Start JSON response:`,
           },
