@@ -98,18 +98,20 @@ export default function TalkPage() {
       <div className="fixed bottom-0 left-0 w-full bg-background/80 backdrop-blur z-10 px-2 py-4 border-t">
         <div className="max-w-2xl mx-auto">
           {isLocked ? (
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 flex-1">
-                <BookOpen className="w-5 h-5 text-primary" />
-                <p className="font-medium truncate">
-                  {selectedBook?.book?.title ?? "Book title not found!"}
-                </p>
-                <p className="text-sm text-muted-foreground truncate">
+            <div className="flex flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-primary flex-shrink-0" />
+                  <p className="font-medium truncate">
+                    {selectedBook?.book?.title ?? "Book title not found!"}
+                  </p>
+                </div>
+                <p className="text-sm text-muted-foreground truncate pl-7 sm:pl-0">
                   by {selectedBook?.book?.author ?? "Unknown author"}
                 </p>
               </div>
               <Button
-                className="cursor-pointer"
+                className="flex-shrink-0"
                 onClick={() => {
                   setIsLocked(false);
                   setSelectedBook(null);
