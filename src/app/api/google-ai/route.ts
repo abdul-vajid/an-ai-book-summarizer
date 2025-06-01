@@ -121,8 +121,6 @@ Start JSON response:`,
       }))
     };
 
-    console.log('✅ Generated book content:', bookContent);
-
     return NextResponse.json(bookContent);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
