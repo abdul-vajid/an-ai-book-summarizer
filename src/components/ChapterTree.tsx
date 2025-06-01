@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { ChevronRight, CircleDot, BookOpen, AlertCircle } from "lucide-react";
 import type { BookSummary } from "@/types/book.interface";
@@ -16,6 +16,14 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
   const [expandedChapter, setExpandedChapter] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [chapterNodes, setChapterNodes] = useState<Record<string, any[]>>({});
+
+  useEffect(() => {
+    if (expandedChapter && !chapterNodes[expandedChapter]) {
+      fetchChapterNodes(expandedChapter);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expandedChapter]);
 
   // Guard against invalid book data
   if (!book || !book.book || !Array.isArray(book.chapters)) {
@@ -51,6 +59,31 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
       );
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchChapterNodes(chapterTitle: string) {
+    try {
+      const res = await fetch("/api/open-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: book.book.title,
+          author: book.book.author,
+          chapter: chapterTitle,
+        }),
+      });
+      const data = await res.json();
+      if (data.nodes && Array.isArray(data.nodes)) {
+        setChapterNodes((prev) => ({
+          ...prev,
+          [chapterTitle]: data.nodes,
+        }));
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to load chapter nodes"
+      );
     }
   }
 
@@ -133,7 +166,7 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
                               <div className="absolute left-6 top-0 bottom-0 w-px bg-border/50" />
 
                               <div className="space-y-3">
-                                {chapter.nodes.map((node, nodeIdx) => (
+                                {(chapterNodes[chapter.title] || chapter.nodes).map((node, nodeIdx) => (
                                   <motion.div
                                     key={node.title}
                                     layout

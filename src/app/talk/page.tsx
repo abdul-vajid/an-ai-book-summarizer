@@ -19,7 +19,7 @@ export default function TalkPage() {
   async function generateBookContent(book: SearchResult) {
     setGenerating(true);
     try {
-      const response = await fetch("/api/generate-book-content", {
+      const response = await fetch("/api/open-ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(book),
