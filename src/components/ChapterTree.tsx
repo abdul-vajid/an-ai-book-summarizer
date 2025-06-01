@@ -100,9 +100,14 @@ export default function ChapterTree({ book }: { book: BookSummary }) {
           animate={{ opacity: 1, y: 0 }}
           className="sticky top-0 z-30 w-full bg-background/80 backdrop-blur-sm border-b border-border mt-20"
         >
-          <div className="max-w-5xl mx-auto px-4 py-5 flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-medium">{book.book.title}</h2>
+          <div className="max-w-5xl mx-auto px-4 py-5 gap-2">
+            <div className="flex items-center gap-3">
+              <BookOpen className="w-5 h-5 text-primary" />
+              <h2 className="text-lg font-bold">Rami.ai</h2>
+            </div>
+            <p className="text-sm font-semibold">
+              Read, Analyze, Memorize, Interpret
+            </p>
           </div>
         </motion.div>
 
